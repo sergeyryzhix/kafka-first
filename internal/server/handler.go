@@ -10,6 +10,11 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	minBatchSize = 100
+	maxBatchSize = 200
+)
+
 type MessageHandler struct {
 	producer *producer.Producer
 	log      *zap.Logger
@@ -23,7 +28,7 @@ func NewMessageHandler(p *producer.Producer, log *zap.Logger) *MessageHandler {
 }
 
 func (h *MessageHandler) SendMessages(c *fiber.Ctx) error {
-	num := 100 + rand.Intn(101)
+	num := minBatchSize + rand.Intn(maxBatchSize-minBatchSize+1)
 
 	msgs := make([]domain.Message, 0, num)
 	for i := 1; i <= num; i++ {

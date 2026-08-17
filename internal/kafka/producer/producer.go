@@ -7,6 +7,7 @@ import (
 	"time"
 
 	kafkago "github.com/segmentio/kafka-go"
+	"github.com/sergeyryzhix/kafka-first/internal/config"
 	"github.com/sergeyryzhix/kafka-first/internal/domain"
 )
 
@@ -15,10 +16,17 @@ type Producer struct {
 	topic  string
 }
 
-func NewProducer(brokers []string, topic string) (*Producer, error) {
+func NewProducer(cfg config.Kafka) (*Producer, error) {
+	if len(cfg.Brokers) == 0 {
+		return nil, fmt.Errorf("brokers is empty")
+	}
+	if cfg.Topic == "" {
+		return nil, fmt.Errorf("topic is empty")
+	}
+
 	writer := &kafkago.Writer{
-		Addr:                   kafkago.TCP(brokers...),
-		Topic:                  topic,
+		Addr:                   kafkago.TCP(cfg.Brokers...),
+		Topic:                  cfg.Topic,
 		Balancer:               &kafkago.LeastBytes{},
 		RequiredAcks:           kafkago.RequireAll,
 		AllowAutoTopicCreation: true,
@@ -26,7 +34,7 @@ func NewProducer(brokers []string, topic string) (*Producer, error) {
 
 	return &Producer{
 		writer: writer,
-		topic:  topic,
+		topic:  cfg.Topic,
 	}, nil
 }
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	kafkago "github.com/segmentio/kafka-go"
+	"github.com/sergeyryzhix/kafka-first/internal/config"
 	"github.com/sergeyryzhix/kafka-first/internal/domain"
 	"go.uber.org/zap"
 )
@@ -18,14 +19,14 @@ type Consumer struct {
 	log     *zap.Logger
 }
 
-func NewConsumer(brokers []string, topic, groupID string, handler MessageHandler, log *zap.Logger) (*Consumer, error) {
-	if len(brokers) == 0 {
+func NewConsumer(cfg config.Kafka, handler MessageHandler, log *zap.Logger) (*Consumer, error) {
+	if len(cfg.Brokers) == 0 {
 		return nil, fmt.Errorf("brokers is empty")
 	}
-	if topic == "" {
+	if cfg.Topic == "" {
 		return nil, fmt.Errorf("topic is empty")
 	}
-	if groupID == "" {
+	if cfg.GroupID == "" {
 		return nil, fmt.Errorf("groupID is empty")
 	}
 	if handler == nil {
@@ -36,9 +37,9 @@ func NewConsumer(brokers []string, topic, groupID string, handler MessageHandler
 	}
 
 	reader := kafkago.NewReader(kafkago.ReaderConfig{
-		Brokers:     brokers,
-		Topic:       topic,
-		GroupID:     groupID,
+		Brokers:     cfg.Brokers,
+		Topic:       cfg.Topic,
+		GroupID:     cfg.GroupID,
 		StartOffset: kafkago.FirstOffset,
 	})
 

@@ -44,7 +44,7 @@ func New() (*App, error) {
 		zap.Duration("shutdown_timeout", cfg.App.ShutdownTimeout),
 	)
 
-	prod, err := producer.NewProducer(cfg.Kafka.Brokers, cfg.Kafka.Topic)
+	prod, err := producer.NewProducer(cfg.Kafka)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка инициализации producer: %w", err)
 	}
@@ -57,15 +57,9 @@ func New() (*App, error) {
 		)
 	}
 
-	cons, err := consumer.NewConsumer(
-		cfg.Kafka.Brokers,
-		cfg.Kafka.Topic,
-		cfg.Kafka.GroupID,
-		handler,
-		log,
-	)
+	cons, err := consumer.NewConsumer(cfg.Kafka, handler, log)
 	if err != nil {
-		prod.Close()
+		_ = prod.Close()
 		return nil, fmt.Errorf("ошибка инициализации consumer: %w", err)
 	}
 
