@@ -20,22 +20,6 @@ type Consumer struct {
 }
 
 func NewConsumer(cfg config.Kafka, handler MessageHandler, log *zap.Logger) (*Consumer, error) {
-	if len(cfg.Brokers) == 0 {
-		return nil, fmt.Errorf("brokers is empty")
-	}
-	if cfg.Topic == "" {
-		return nil, fmt.Errorf("topic is empty")
-	}
-	if cfg.GroupID == "" {
-		return nil, fmt.Errorf("groupID is empty")
-	}
-	if handler == nil {
-		return nil, fmt.Errorf("handler is nil")
-	}
-	if log == nil {
-		return nil, fmt.Errorf("logger is nil")
-	}
-
 	reader := kafkago.NewReader(kafkago.ReaderConfig{
 		Brokers:     cfg.Brokers,
 		Topic:       cfg.Topic,

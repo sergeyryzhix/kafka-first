@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	if err := app.Run(context.Background()); err != nil {
+	if err := app.Start(context.Background()); err != nil {
 		log.Fatalf("критическая ошибка запуска: %v", err)
 	}
 }

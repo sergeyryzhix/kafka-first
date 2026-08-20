@@ -35,7 +35,7 @@ func (h *MessageHandler) SendMessages(c *fiber.Ctx) error {
 		msgs = append(msgs, domain.NewMessage(i, fmt.Sprintf("сообщение #%d", i)))
 	}
 
-	if err := h.producer.SendBatch(msgs); err != nil {
+	if err := h.producer.SendBatch(c.Context(), msgs); err != nil {
 		h.log.Error("ошибка отправки батча продюсеру",
 			zap.Error(err),
 			zap.Int("messages_count", len(msgs)),

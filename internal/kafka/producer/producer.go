@@ -12,18 +12,12 @@ import (
 )
 
 type Producer struct {
-	writer *kafkago.Writer
-	topic  string
+	writer       *kafkago.Writer
+	topic        string
+	writeTimeout time.Duration
 }
 
 func NewProducer(cfg config.Kafka) (*Producer, error) {
-	if len(cfg.Brokers) == 0 {
-		return nil, fmt.Errorf("brokers is empty")
-	}
-	if cfg.Topic == "" {
-		return nil, fmt.Errorf("topic is empty")
-	}
-
 	writer := &kafkago.Writer{
 		Addr:                   kafkago.TCP(cfg.Brokers...),
 		Topic:                  cfg.Topic,
@@ -33,13 +27,14 @@ func NewProducer(cfg config.Kafka) (*Producer, error) {
 	}
 
 	return &Producer{
-		writer: writer,
-		topic:  cfg.Topic,
+		writer:       writer,
+		topic:        cfg.Topic,
+		writeTimeout: cfg.WriteTimeout,
 	}, nil
 }
 
-func (p *Producer) SendMessage(msg domain.Message) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+func (p *Producer) SendMessage(ctx context.Context, msg domain.Message) error {
+	ctx, cancel := context.WithTimeout(ctx, p.writeTimeout)
 	defer cancel()
 
 	data, err := json.Marshal(msg)
@@ -59,12 +54,12 @@ func (p *Producer) SendMessage(msg domain.Message) error {
 	return nil
 }
 
-func (p *Producer) SendBatch(messages []domain.Message) error {
+func (p *Producer) SendBatch(ctx context.Context, messages []domain.Message) error {
 	if len(messages) == 0 {
 		return nil
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, p.writeTimeout)
 	defer cancel()
 
 	kafkaMessages := make([]kafkago.Message, len(messages))

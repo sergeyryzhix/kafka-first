@@ -19,9 +19,10 @@ type Log struct {
 }
 
 type Kafka struct {
-	Brokers []string `env:"BROKERS" envSeparator:"," envDefault:"localhost:9092"`
-	Topic   string   `env:"TOPIC" envDefault:"demo-events"`
-	GroupID string   `env:"GROUP_ID" envDefault:"demo-consumer"`
+	Brokers      []string      `env:"BROKERS" envSeparator:"," envDefault:"localhost:9092"`
+	Topic        string        `env:"TOPIC" envDefault:"demo-events"`
+	GroupID      string        `env:"GROUP_ID" envDefault:"demo-consumer"`
+	WriteTimeout time.Duration `env:"WRITE_TIMEOUT" envDefault:"10s"`
 }
 
 type Config struct {
